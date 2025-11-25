@@ -26,13 +26,8 @@ export class Course {
   @Prop({ required: true })
   thumbnail: string;
 
-  @Prop()
-  rating: [
-    {
-      userId: { type: Types.ObjectId; ref: 'User' };
-      score: { type: Number; min: 1; max: 5 };
-    },
-  ];
+  @Prop({ type: [Types.ObjectId], ref: 'Review', default: [] })
+  reviews: Types.ObjectId[];
 
   @Prop({ required: true })
   category: string[];

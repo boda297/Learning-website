@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsMongoId, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { Types } from 'mongoose';
 
 export class CreateReviewDto {
@@ -14,5 +21,7 @@ export class CreateReviewDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Min(1)
+  @Max(5)
   rating: number;
 }

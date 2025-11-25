@@ -8,12 +8,14 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { MongoIdDto } from 'src/common/mongoId.dto';
+import { Types } from 'mongoose';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -26,8 +28,8 @@ export class ReviewsController {
   }
 
   @Get()
-  findAll(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.findAll();
+  findAll(@Query('courseId') courseId: Types.ObjectId) {
+    return this.reviewsService.findAll(courseId);
   }
 
   @Get(':id')
@@ -47,7 +49,7 @@ export class ReviewsController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  remove(@Param('id') id: MongoIdDto, @Req() req: any) {
-    return this.reviewsService.remove(id, req.user.sub);
+  remove(@Param('id') id: MongoIdDto) {
+    return this.reviewsService.remove(id);
   }
 }

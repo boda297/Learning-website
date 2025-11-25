@@ -11,7 +11,6 @@ export class Review {
   course: Types.ObjectId;
   @Prop({ required: true })
   comment: string;
-
   @Prop({ required: true, min: 1, max: 5 })
   rating: number;
 }

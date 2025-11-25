@@ -27,31 +27,61 @@ export class ReviewsService {
     const course = await this.courseModel.findById(createReviewDto.courseId);
     if (!course) throw new NotFoundException('Course not found');
 
-    const review = (await this.reviewModel.create(createReviewDto)).populate(
-      'owner',
-    );
+    const reviewData = {
+      comment: createReviewDto.comment,
+      rating: createReviewDto.rating,
+      course: createReviewDto.courseId,
+      owner,
+    };
 
-    // add User review to Course entity
+    const review = await this.reviewModel.create(reviewData);
+    // add review to course's reviews array
+    course.reviews.push(review._id as Types.ObjectId);
+    await course.save();
 
+    await review.populate('owner', 'username email imgUrl');
     return review;
   }
 
-  async findAll(createReviewDto: CreateReviewDto) {
-    const course = await this.courseModel.findById(createReviewDto.courseId);
+  async findAll(courseId: Types.ObjectId) {
+    const course = await this.courseModel.findById(courseId);
     if (!course) throw new NotFoundException('Course not found');
 
-    return await this.reviewModel.find({ course });
+    return await this.reviewModel
+      .find({ course: courseId as Types.ObjectId })
+      .populate('owner', 'username email imgUrl');
   }
 
-  findOne(id: MongoIdDto) {
-    return `This action returns a #${id} review`;
+  async findOne(id: MongoIdDto) {
+    const review = await this.reviewModel
+      .findById(id)
+      .populate('owner', 'username email imgUrl');
+    if (!review) throw new NotFoundException('Review not found');
+    return review;
   }
 
-  update(id: MongoIdDto, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+  async update(
+    id: MongoIdDto,
+    updateReviewDto: UpdateReviewDto,
+    owner: MongoIdDto,
+  ) {
+    const review = await this.reviewModel.findByIdAndUpdate(
+      id,
+      updateReviewDto,
+      {
+        new: true,
+      },
+    );
+    if (!review) throw new NotFoundException('Review not found');
+    await review.populate('owner', 'username email imgUrl');
+    return review;
   }
 
-  remove(id: MongoIdDto) {
-    return `This action removes a #${id} review`;
+  async remove(id: MongoIdDto) {
+    const review = await this.reviewModel.findByIdAndDelete(id);
+    if (!review) throw new NotFoundException('Review not found');
+    return {
+      message: 'Review deleted successfully',
+    };
   }
 }
